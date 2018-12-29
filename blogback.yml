@@ -1,0 +1,37 @@
+version: '3.7'
+
+services:
+  nginx:
+    container_name: blog-nginx
+    image: nginx:stable-alpine
+    restart: always
+    ports:
+      - 8888:80
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf
+      - ./logs/nginx:/var/log/nginx
+
+  backend:
+    container_name: blog-backend
+    restart: always
+    image: jianjiago/blogback:dev
+    links:
+      - db
+    ports:
+      - "8888"
+    volumes:
+      - ./logs/server.log:/app/logs/server.log
+  db:
+    container_name: blog-db
+    restart: always
+    image: mysql
+    environment:
+      MYSQL_DATABASE: blog
+      MYSQL_USER: edgar
+      MYSQL_PASSWORD: '1234'
+      MYSQL_ROOT_PASSWORD: '1234'
+    ports:
+      - 3306:3306
+    volumes:
+      - ./blog.sql:/docker-entrypoint-initdb.d/blog.sql
+#      - ~/docker/mysql/data:/var/lib/mysql

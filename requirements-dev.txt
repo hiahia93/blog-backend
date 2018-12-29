@@ -1,0 +1,6 @@
+aiomysql
+fabric
+Faker
+PyJWT
+requests
+tornado
