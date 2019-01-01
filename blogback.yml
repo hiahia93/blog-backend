@@ -9,7 +9,7 @@ services:
       - 8888:80
     volumes:
       - ./nginx.conf:/etc/nginx/nginx.conf
-      - ./logs/nginx:/var/log/nginx
+      - /var/log/blogback:/var/log/nginx
 
   backend:
     container_name: blog-backend
@@ -20,7 +20,7 @@ services:
     ports:
       - "8888"
     volumes:
-      - ./logs/server.log:/app/logs/server.log
+      - /var/log/blogback:/var/log/blogback
   db:
     container_name: blog-db
     restart: always

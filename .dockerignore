@@ -1,5 +1,10 @@
 __pycache__/*
-.idea/*
-.vscode/*
+.idea
+.vscode
 *.pyc
-venv/*
+venv
+test
+requirements-dev.txt
+push.sh
+table_truncate.sql
+blog.sql
