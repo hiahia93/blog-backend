@@ -1,6 +1,5 @@
-import time
 import unittest
-import asyncio
+import json
 
 from test.base import BaseCase
 
@@ -29,20 +28,21 @@ class Case(BaseCase):
         self.assertEqual(201, response.status_code)
 
     def test_a_user_b_login(self):
-        path = '/login'
-        data = {'id': 'edgar', 'password': '1234'}
-        response = self.fetch(path, method='POST', data=data)
+        path = '/user/{0}/login'
+        data = {'password': '1234'}
+        response = self.fetch(path.format('edgar'), method='POST', data=data)
         self.assertEqual(404, response.status_code)
 
-        data = {'id': 'Edgar', 'password': '12345'}
-        response = self.fetch(path, method='POST', data=data)
+        data = {'password': '12345'}
+        response = self.fetch(path.format('Edgar'), method='POST', data=data)
         self.assertEqual(400, response.status_code)
 
-        data = {'id': 'Edgar', 'password': '1234'}
-        response = self.fetch(path, method='POST', data=data)
+        data = {'password': '1234'}
+        response = self.fetch(path.format('Edgar'), method='POST', data=data)
         self.assertEqual(201, response.status_code)
         self.assertTrue('token' in response.json())
         self.token = response.json().get('token', '')
+        print(self.token)
 
     def test_a_user_exists(self):
         path = '/user/Edgar/exists'
@@ -66,6 +66,7 @@ class Case(BaseCase):
         response = self.fetch(path, token=self.token)
         self.assertEqual(200, response.status_code)
         self.assertTrue('nickname' in response.json())
+        print(json.dumps(response.json()))
 
     def test_a_user_put(self):
         path = '/user/Edgar'

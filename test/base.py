@@ -26,8 +26,8 @@ class BaseCase(unittest.TestCase):
         self.fetchToken()
 
     def fetchToken(self):
-        data = {'id': 'Edgar', 'password': '1234'}
-        response = self.fetch('/login', method='POST', data=data)
+        data = {'password': '1234'}
+        response = self.fetch('/user/Edgar/login', method='POST', data=data)
         try:
             self.token = response.json().get('token', '')
         except:

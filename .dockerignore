@@ -8,3 +8,4 @@ requirements-dev.txt
 push.sh
 table_truncate.sql
 blog.sql
+docs
