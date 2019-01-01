@@ -11,9 +11,9 @@ def local(repo, is_local: bool, build_again: bool):
     if build_again:
         os.system('docker build -t {0} .'.format(repo))
     if is_local:
-        os.system('docker-compose -f blogback.yml stop')
-        os.system('docker-compose -f blogback.yml rm -f')
-        os.system('docker-compose -f blogback.yml up -d')
+        os.system('docker-compose stop')
+        os.system('docker-compose rm -f')
+        os.system('docker-compose up -d')
     else:
         os.system('docker push {0}'.format(repo))
 
@@ -24,12 +24,12 @@ def remote(repo):
     })
     with conn.cd(REMOTE_WORK):
         conn.run('docker pull {0}'.format(repo))
-        conn.run('docker-compose -f blogback.yml stop')
-        conn.run('docker-compose -f blogback.yml rm -f')
-        conn.put('blogback.yml', REMOTE_WORK)
+        conn.run('docker-compose stop')
+        conn.run('docker-compose rm -f')
+        conn.put('docker-compose.yml', REMOTE_WORK)
         conn.put('nginx.conf', REMOTE_WORK)
         conn.put('blog.sql', REMOTE_WORK)
-        conn.run('docker-compose -f blogback.yml up -d')
+        conn.run('docker-compose up -d')
 
 
 if __name__ == '__main__':
