@@ -1,6 +1,6 @@
-from apps.label.handler import LabelHandler, LabelsHandler
+from apps.label.handler import LabelHandler
 
 url = [
-    ('/api/label/(\w+)', LabelHandler),
-    ('/api/labels', LabelsHandler),
+    ('/api/label', LabelHandler),
+    ('/api/label/(\d+)', LabelHandler),
 ]

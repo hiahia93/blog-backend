@@ -12,38 +12,43 @@ class Label(BaseModel):
             async with self.conn.cursor() as cur:
                 count = await cur.execute(sql, label)
                 await self.conn.commit()
-            return count
+                if count > 0:
+                    sql = "select id from Label where label=%s;"
+                    await cur.execute(sql, label)
+                    one = cur.fetchone()
+                    return one
+                else:
+                    return None
         except Exception as e:
             logger.error(e)
-            return -1
+            return None
 
     async def binding_labels(self, article_id: int, labels: list):
-        sql = "insert into {0}(label) values(%s);".format(self.table)
-        data = []
         try:
             async with self.conn.cursor() as cur:
                 for l in labels:
-                    tmp_sql = 'select label from {0} where label=%s;'.format(self.table)
+                    tmp_sql = 'select label from {0} where id=%s;'.format(self.table)
                     await cur.execute(tmp_sql, (l,))
                     one = await cur.fetchone()
                     if one is None:
-                        data.append((l,))
-                if len(data) > 0:
-                    await cur.executemany(sql, data)
+                        labels.pop(labels.index(l))
+                if len(labels) > 0:
+                    sql = "insert into ArticleLabel(article_id, label_id) VALUES (%s,%s);"
+                    data = []
+                    for l in labels:
+                        data.append((article_id, l))
+                    count = await cur.executemany(sql, data)
                     await self.conn.commit()
-                sql = "insert into ArticleLabel(article_id, label) VALUES (%s,%s);"
-                data = []
-                for l in labels:
-                    data.append((article_id, l))
-                count = await cur.executemany(sql, data)
-                await self.conn.commit()
-            return count
+                    return count
+                return 0
         except Exception as e:
             logger.error(e)
             return -1
 
-    async def select_article_labels(self, article_id, *fields):
-        sql = 'select label from ArticleLabel where article_id=%s;'
+    async def select_article_labels(self, article_id):
+        sql = "select id, label from {0} where id in " \
+              "(select label_id from ArticleLabel where article_id=%s);" \
+              .format(self.table)
         try:
             async with self.conn.cursor() as cur:
                 await cur.execute(sql, (article_id,))
@@ -54,7 +59,7 @@ class Label(BaseModel):
             return None
 
     async def select_labels(self):
-        sql = 'select * from {0} order by label;'.format(self.table)
+        sql = 'select id,label from {0} order by label;'.format(self.table)
         try:
             async with self.conn.cursor() as cur:
                 await cur.execute(sql)

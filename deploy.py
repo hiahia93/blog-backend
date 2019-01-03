@@ -11,9 +11,10 @@ def local(repo, is_local: bool, build_again: bool):
     if build_again:
         os.system('docker build -t {0} .'.format(repo))
     if is_local:
-        os.system('docker-compose stop')
-        os.system('docker-compose rm -f')
-        os.system('docker-compose up -d')
+        # os.system('docker-compose stop')
+        # os.system('docker-compose rm -f')
+        # os.system('docker-compose up -d')
+        pass
     else:
         os.system('docker push {0}'.format(repo))
 
