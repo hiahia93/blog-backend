@@ -28,11 +28,11 @@ class Comment(BaseModel):
         if limit == -1:
             limit = 10
         if start < 100:
-            sql = 'select id,content,created_at from {0} where article_id=%s order by created_at limit %s,%s;'\
+            sql = 'select id,article_id,content,created_at from {0} where article_id=%s order by created_at limit %s,%s;'\
                 .format(self.table)
         else:
             sql = """
-            select id,content,created_at from {0} where id >=
+            select id,article_id,content,created_at from {0} where id >=
             (select id from {1} where article_id=%s order by created_by limit %s,1) 
             limit %s;
             """.format(self.table, self.table)

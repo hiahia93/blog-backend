@@ -7,5 +7,6 @@ test
 requirements-dev.txt
 push.sh
 table_truncate.sql
+docker-mysql.sh
 blog.sql
-docs
+doc

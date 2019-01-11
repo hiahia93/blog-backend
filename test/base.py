@@ -1,6 +1,5 @@
-import unittest
 import json
-import asyncio
+import unittest
 
 from faker import Faker
 from requests import request
@@ -16,22 +15,13 @@ class BaseCase(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        BaseCase.truncate_table()
-
-    @staticmethod
-    def truncate_table():
         common.truncate_table()
 
-    def setUp(self):
-        self.fetchToken()
-
     def fetchToken(self):
-        data = {'password': '1234'}
-        response = self.fetch('/user/Edgar/login', method='POST', data=data)
-        try:
-            self.token = response.json().get('token', '')
-        except:
-            pass
+        data = {'password': '1234', 'id': 'Edgar'}
+        response = self.fetch('/auth', method='POST', data=data)
+        self.assertEqual(201, response.status_code)
+        self.token = response.json().get('token', '')
 
     def fetch(self, path: str, params=None, data=None, method: str = 'GET', token=None):
         if method == 'GET':
@@ -40,10 +30,3 @@ class BaseCase(unittest.TestCase):
         if token is not None:
             headers['token'] = token
         return request(method, self.base_url + path, headers=headers, params=params, data=json.dumps(data))
-
-    async def tmp_fetch(self, path: str, params=None, data=None, method: str = 'GET', token=None):
-        return self.fetch(path, params, data, method, token)
-
-    def afetch(self, path: str, params=None, data=None, method: str = 'GET', token=None):
-        loop = asyncio.get_event_loop()
-        return loop.run_until_complete(self.tmp_fetch(path, params, data, method, token))

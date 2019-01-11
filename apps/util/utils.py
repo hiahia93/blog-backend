@@ -30,3 +30,10 @@ def to_dict(obj, *filter) -> dict:
             v = v.strftime('%Y-%m-%d %H:%M:%S')
         result[a] = v
     return result
+
+
+def list_all_type(data: list, ty):
+    for d in data:
+        if not isinstance(d, ty):
+            return False
+    return True

@@ -167,17 +167,26 @@ def auth(func):
         try:
             playload = jwt.decode(token, cf.get('server', 'secret_key'), algorithms=['HS256'],
                                   options={"verify_exp": True})
-
+        except Exception as e:
+            logger.error(e)
+            self.set_status(401)
+            self.finish(Constant.unauthorized)
+            return
+        else:
             if playload:
+                user = User()
+                await user.connect()
+                one = await user.select(playload['id'])
+                del user
+                if one is None:
+                    self.set_status(401)
+                    self.finish(Constant.unauthorized)
+                    return
                 self.current_user = playload['id']
                 await func(self, *args, **kwargs)
                 self.current_user = None
             else:
                 self.set_status(401)
                 self.finish(Constant.unauthorized)
-        except Exception as e:
-            logger.error(e)
-            self.set_status(401)
-            self.finish(Constant.unauthorized)
 
     return wrapper

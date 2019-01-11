@@ -3,20 +3,12 @@ import os
 import argparse
 import time
 
-REMOTE_WORK = '/root/app/compose/blogback'
+REMOTE_WORK = '/root/app/blog-backend'
 REPO = 'jianjiago/blogback'
 
 
-def local(repo, is_local: bool, build_again: bool):
-    if build_again:
-        os.system('docker build -t {0} .'.format(repo))
-    if is_local:
-        # os.system('docker-compose stop')
-        # os.system('docker-compose rm -f')
-        # os.system('docker-compose up -d')
-        pass
-    else:
-        os.system('docker push {0}'.format(repo))
+def local(commit_message):
+    os.system("./push.sh {0}".format(commit_message))
 
 
 def remote(repo):
@@ -24,26 +16,20 @@ def remote(repo):
         'key_filename': '/home/edgar/Documents/centos_tencent.key'
     })
     with conn.cd(REMOTE_WORK):
-        conn.run('docker pull {0}'.format(repo))
         conn.run('docker-compose stop')
         conn.run('docker-compose rm -f')
-        conn.put('docker-compose.yml', REMOTE_WORK)
-        conn.put('nginx.conf', REMOTE_WORK)
-        conn.put('blog.sql', REMOTE_WORK)
+        conn.run('git pull origin master')
+        conn.run('docker build -t {0} .'.format(repo))
         conn.run('docker-compose up -d')
+        conn.run('docker push {0}'.format(repo))
 
 
 if __name__ == '__main__':
     start = int(time.time())
     parser = argparse.ArgumentParser()
+    parser.add_argument('-m', default='modified something', type=str)
     parser.add_argument('-t', default='dev', type=str)
-    parser.add_argument('-e', default='local', type=str)  # local or remote
-    parser.add_argument('-b', default='y', type=str)  # y or n
     args = parser.parse_args()
     repo = '{0}:{1}'.format(REPO, args.t)
-    is_local = args.e == 'local'
-    build_again = args.b == 'y'
-    local(repo, is_local, build_again)
-    if not is_local:
-        remote(repo)
-    print(int(time.time() - start))
+    local(args.m)
+    remote(repo)

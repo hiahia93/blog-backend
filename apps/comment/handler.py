@@ -62,18 +62,18 @@ class CommentHandler(DefaultHandler, ABC):
         comment_id = self.get_argument('comment_id', None)
         comment = Comment()
         await comment.connect()
-        if not comment_id:
+        if comment_id:
             one = await comment.select(int(comment_id), 'id', 'article_id', 'content', 'created_at')
-            many = [one] if not one else []
+            many = [one] if one else []
         else:
             start = int(self.get_argument('start', -1))
             limit = int(self.get_argument('limit', -1))
-            label_id = self.get_argument('article_id', None)
-            if not label_id:
+            article_id = self.get_argument('article_id', None)
+            if not article_id:
                 self.set_status(400)
                 self.finish(Constant.params_insufficiency)
                 return
-            many = await comment.select_article_comments(int(label_id), start, limit)
+            many = await comment.select_article_comments(int(article_id), start, limit)
         del comment
         if many is None or len(many) == 0:
             self.set_status(404)
@@ -83,8 +83,9 @@ class CommentHandler(DefaultHandler, ABC):
         for m in many:
             comments.append({
                 'id': m[0],
-                'content': m[1],
-                'created_at': time.mktime(m[2].timetuple())
+                'article_id': m[1],
+                'content': m[2],
+                'created_at': time.mktime(m[3].timetuple())
             })
         self.finish({'items': comments})
 

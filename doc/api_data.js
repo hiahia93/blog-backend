@@ -846,7 +846,7 @@ define({ "api": [
   {
     "type": "get",
     "url": "/label",
-    "title": "Get some labels, all labels in server default",
+    "title": "Get some labels, all labels in server default if article_id is not given",
     "version": "0.1.0",
     "name": "UserGetAll",
     "group": "Label",
@@ -1110,6 +1110,13 @@ define({ "api": [
             "group": "Parameter",
             "type": "String",
             "optional": false,
+            "field": "id",
+            "description": "<p>JSON param, the id of the user.</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
             "field": "password",
             "description": "<p>JSON param, the password of the user.</p>"
           },
@@ -1154,7 +1161,7 @@ define({ "api": [
   },
   {
     "type": "put",
-    "url": "/user/:id",
+    "url": "/user",
     "title": "Update user information",
     "version": "0.1.0",
     "name": "UserUpdate",

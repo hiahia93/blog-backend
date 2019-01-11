@@ -15,7 +15,7 @@ class Label(BaseModel):
                 if count > 0:
                     sql = "select id from Label where label=%s;"
                     await cur.execute(sql, label)
-                    one = cur.fetchone()
+                    one = await cur.fetchone()
                     return one
                 else:
                     return None
@@ -63,7 +63,7 @@ class Label(BaseModel):
         try:
             async with self.conn.cursor() as cur:
                 await cur.execute(sql)
-                labels = cur.fetchall()
+                labels = await cur.fetchall()
             return labels
         except Exception as e:
             logger.error(e)

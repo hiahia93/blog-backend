@@ -1,5 +1,5 @@
 from .handler import UserHandler
 
 url = [
-    ('/api/user/(\w+)', UserHandler),
+    ('/api/user', UserHandler),
 ]

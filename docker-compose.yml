@@ -1,6 +1,14 @@
 version: '3.7'
 
 services:
+  docs:
+    container_name: blog-docs
+    restart: always
+    ports:
+      - 8889:80
+    build:
+      context: ./doc
+
   nginx:
     container_name: blog-nginx
     image: nginx:stable-alpine

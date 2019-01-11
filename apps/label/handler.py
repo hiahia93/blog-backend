@@ -9,7 +9,7 @@ class LabelHandler(DefaultHandler, ABC):
 
     async def get(self, *args, **kwargs):
         """
-        @api {get} /label Get some labels, all labels in server default
+        @api {get} /label Get some labels, all labels in server default if article_id is not given
         @apiVersion 0.1.0
         @apiName UserGetAll
         @apiGroup Label

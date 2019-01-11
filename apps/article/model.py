@@ -18,22 +18,20 @@ class Article(BaseModel):
             logger.error(e)
             return None
 
-    async def select_articles(self, start, limit, label):
+    async def select_articles(self, start, limit, label_id):
         if start == -1:
             start = 0
         if limit == -1:
             limit = 10
-        if label == '':
+        if label_id is None:
             sql = "select * from {0} order by created_at limit %s,%s;" \
                 .format(self.table)
             query = (start, limit)
         else:
-            sql = """
-                select * from {0} where id in
-                (select article_id from ArticleLabel where label=%s)
-                order by created_at limit %s,%s;
-            """.format(self.table)
-            query = (label, start, limit)
+            sql = "select * from {0} where id in " \
+                  "(select article_id from ArticleLabel where label_id=%s) " \
+                  "order by created_at limit %s,%s;".format(self.table)
+            query = (label_id, start, limit)
         try:
             async with self.conn.cursor() as cur:
                 await cur.execute(sql, query)
@@ -43,14 +41,14 @@ class Article(BaseModel):
             logger.error(e)
             return None
 
-    async def handle_article_label(self, article_id, label, insert: bool = True):
+    async def handle_article_label(self, article_id, label_id, insert: bool = True):
         if insert:
-            sql = "insert into ArticleLabel(article_id, label) values (%s,%s);"
+            sql = "insert into ArticleLabel(article_id, label_id) values (%s,%s);"
         else:
-            sql = "delete from ArticleLabel where article_id=%s and label=%s"
+            sql = "delete from ArticleLabel where article_id=%s and label_id=%s"
         try:
             async with self.conn.cursor() as cur:
-                count = await cur.execute(sql, (article_id, label))
+                count = await cur.execute(sql, (article_id, label_id))
                 await self.conn.commit()
             return count
         except Exception as e:

@@ -1,5 +1,5 @@
-import unittest
 import json
+import unittest
 
 from test.base import BaseCase
 
@@ -7,289 +7,349 @@ from test.base import BaseCase
 class Case(BaseCase):
 
     def test_a_user_a_register(self):
-        id = 'Edgar'
-        path = '/user/' + id
-        response = self.fetch(path)
-        self.assertEqual(401, response.status_code)
-
-        response = self.fetch(path, method='POST')
-        self.assertEqual(400, response.status_code)
+        path = '/user'
+        res = self.fetch(path, method='POST')
+        self.assertEqual(400, res.status_code)
 
         data = {'password': '1234'}
-        response = self.fetch(path, method='POST', data=data)
-        self.assertEqual(400, response.status_code)
+        res = self.fetch(path, method='POST', data=data)
+        self.assertEqual(400, res.status_code)
 
         data = {'password': '1234', 'email': 'doforce@126.net'}
-        response = self.fetch(path, method='POST', data=data)
-        self.assertEqual(400, response.status_code)
+        res = self.fetch(path, method='POST', data=data)
+        self.assertEqual(400, res.status_code)
 
-        data = {'password': '1234', 'email': 'doforce@126.com'}
-        response = self.fetch(path, method='POST', data=data)
-        self.assertEqual(201, response.status_code)
+        data = {'password': '1234', 'email': 'doforce@126.com', 'id': 'Edgar'}
+        res = self.fetch(path, method='POST', data=data)
+        self.assertEqual(201, res.status_code)
 
     def test_a_user_b_login(self):
-        path = '/user/{0}/login'
+        path = '/auth'
         data = {'password': '1234'}
-        response = self.fetch(path.format('edgar'), method='POST', data=data)
-        self.assertEqual(404, response.status_code)
+        res = self.fetch(path, method='POST', data=data)
+        self.assertEqual(400, res.status_code)
 
-        data = {'password': '12345'}
-        response = self.fetch(path.format('Edgar'), method='POST', data=data)
-        self.assertEqual(400, response.status_code)
+        data = {'password': '12345', 'id': 'Edgar'}
+        res = self.fetch(path, method='POST', data=data)
+        self.assertEqual(400, res.status_code)
 
-        data = {'password': '1234'}
-        response = self.fetch(path.format('Edgar'), method='POST', data=data)
-        self.assertEqual(201, response.status_code)
-        self.assertTrue('token' in response.json())
-        self.token = response.json().get('token', '')
-        print(self.token)
+        data = {'password': '1234', 'id': 'edgar'}
+        res = self.fetch(path, method='POST', data=data)
+        self.assertEqual(404, res.status_code)
 
-    def test_a_user_exists(self):
-        path = '/user/Edgar/exists'
-        response = self.fetch(path)
-        self.assertEqual(200, response.status_code)
-
-        path = '/user/sun/exists'
-        response = self.fetch(path)
-        self.assertEqual(404, response.status_code)
+        data = {'password': '1234', 'id': 'Edgar'}
+        res = self.fetch(path, method='POST', data=data)
+        self.assertEqual(201, res.status_code)
+        self.assertTrue('token' in res.json())
+        self.token = res.json().get('token', '')
 
     def test_a_user_get(self):
-        path = '/user/Edgar'
-        response = self.fetch(path)
-        self.assertEqual(401, response.status_code)
+        path = '/user'
+        res = self.fetch(path)
+        self.assertEqual(401, res.status_code)
 
-        path = '/user/Edgars'
-        response = self.fetch(path, token=self.token)
-        self.assertEqual(404, response.status_code)
+        self.fetchToken()
+        res = self.fetch(path, token=self.token)
+        self.assertEqual(200, res.status_code)
+        self.assertTrue('nickname' in res.json())
 
-        path = '/user/Edgar'
-        response = self.fetch(path, token=self.token)
-        self.assertEqual(200, response.status_code)
-        self.assertTrue('nickname' in response.json())
-        print(json.dumps(response.json()))
+        res = self.fetch(path, token=self.token, params={'check': 'y'})
+        self.assertEqual(404, res.status_code)
+
+        res = self.fetch(path, token=self.token, params={'check': 'y', 'id': 'd'})
+        self.assertEqual(404, res.status_code)
+
+        res = self.fetch(path, token=self.token, params={'check': 'y', 'id': 'Edgar'})
+        self.assertEqual(200, res.status_code)
 
     def test_a_user_put(self):
-        path = '/user/Edgar'
+        self.fetchToken()
+        path = '/user'
         data = {'email': 'dddd', 'nickname': 'superman'}
-        response = self.fetch(path, method='PUT', token=self.token, data=data)
-        self.assertEqual(400, response.status_code)
+        res = self.fetch(path, method='PUT', token=self.token, data=data)
+        self.assertEqual(400, res.status_code)
 
         data = {'nickname': 'superman '}
-        response = self.fetch(path, method='PUT', token=self.token, data=data)
-        self.assertEqual(200, response.status_code)
+        res = self.fetch(path, method='PUT', token=self.token, data=data)
+        self.assertEqual(200, res.status_code)
 
-        response = self.fetch(path, token=self.token)
-        self.assertEqual(200, response.status_code)
-        self.assertTrue('nickname' in response.json())
-        nickname = response.json().get('nickname', '')
+        res = self.fetch(path, token=self.token)
+        self.assertEqual(200, res.status_code)
+        self.assertTrue('nickname' in res.json())
+        nickname = res.json().get('nickname', '')
         self.assertTrue('Edgar' != nickname)
 
         data = {'nickname': 'Edgar'}
-        response = self.fetch(path, method='PUT', token=self.token, data=data)
-        self.assertEqual(200, response.status_code)
+        res = self.fetch(path, method='PUT', token=self.token, data=data)
+        self.assertEqual(200, res.status_code)
+
+    def test_b_alabel_a_post(self):
+        self.fetchToken()
+        path = '/label'
+
+        res = self.fetch(path, method='POST', data={'label': 'Android'})
+        self.assertEqual(401, res.status_code)
+
+        res = self.fetch(path, method='POST', data={'label': 'Android'}, token=self.token)
+        self.assertEqual(201, res.status_code)
+        self.assertTrue('id' in res.json())
+
+        res = self.fetch(path, method='POST', data={'label': 'Android'}, token=self.token)
+        self.assertEqual(400, res.status_code)
+
+        res = self.fetch(path, method='POST', data={'label': 'Java'}, token=self.token)
+        self.assertEqual(201, res.status_code)
+        self.assertTrue('id' in res.json())
+
+        res = self.fetch(path, method='POST', data={'label': 'Python'}, token=self.token)
+        self.assertEqual(201, res.status_code)
+        self.assertTrue('id' in res.json())
+
+        res = self.fetch(path, method='POST', data={'label': 'Golang'}, token=self.token)
+        self.assertEqual(201, res.status_code)
+        self.assertTrue('id' in res.json())
+
+        res = self.fetch(path, method='POST', data={'label': 'JavaScript'}, token=self.token)
+        self.assertEqual(201, res.status_code)
+        self.assertTrue('id' in res.json())
+
+    def test_b_alabel_b_delete(self):
+        self.fetchToken()
+        path = '/label'
+        res = self.fetch(path, method='POST', data={'label': 'Hello'}, token=self.token)
+        self.assertEqual(201, res.status_code)
+        self.assertTrue('id' in res.json())
+
+        res = self.fetch(path + '/100', token=self.token, method='DELETE')
+        self.assertEqual(404, res.status_code)
+
+        res = self.fetch(path + '/7', token=self.token, method='DELETE')
+        self.assertEqual(200, res.status_code)
+
+        res = self.fetch(path + '/7', token=self.token, method='DELETE')
+        self.assertEqual(404, res.status_code)
 
     def test_b_article_a_post(self):
+        self.fetchToken()
         path = '/article'
-        response = self.fetch(path, method='POST')
-        self.assertEqual(401, response.status_code)
+        res = self.fetch(path, method='POST')
+        self.assertEqual(401, res.status_code)
 
         data = {'title': self.en_fake.name(), 'content': self.cn_fake.text() + self.cn_fake.text()}
-        response = self.fetch(path, method='POST', token=self.token, data=data)
-        self.assertEqual(201, response.status_code)
+        res = self.fetch(path, method='POST', token=self.token, data=data)
+        self.assertEqual(201, res.status_code)
 
-        data = {'title': self.en_fake.name(), 'content': self.cn_fake.text() + self.cn_fake.text(), 'labels': ['Android', 'Python', 'Java']}
-        response = self.fetch(path, method='POST', token=self.token, data=data)
-        self.assertEqual(201, response.status_code)
+        data = {'title': self.en_fake.name(), 'content': self.cn_fake.text() + self.cn_fake.text(),
+                'labels': ['Android', 'Python', 'Java']}
+        res = self.fetch(path, method='POST', token=self.token, data=data)
+        self.assertEqual(400, res.status_code)
+
+        data = {'title': self.en_fake.name(), 'content': self.cn_fake.text() + self.cn_fake.text(),
+                'labels': [1, 4, 3]}
+        res = self.fetch(path, method='POST', token=self.token, data=data)
+        self.assertEqual(201, res.status_code)
         for i in range(51):
             data = {'title': self.en_fake.name(), 'content': self.cn_fake.text() + self.cn_fake.text(),
-                    'labels': ['Java', 'Golang', 'JavaScript']}
-            response = self.fetch(path, method='POST', token=self.token, data=data)
-            self.assertEqual(201, response.status_code)
+                    'labels': [1, 4, 3]}
+            res = self.fetch(path, method='POST', token=self.token, data=data)
+            self.assertEqual(201, res.status_code)
         for i in range(51):
             data = {'title': self.en_fake.name(), 'content': self.cn_fake.text() + self.cn_fake.text(),
-                    'labels': ['Android', 'Python']}
-            response = self.fetch(path, method='POST', token=self.token, data=data)
-            self.assertEqual(201, response.status_code)
+                    'labels': [4, 5, 6]}
+            res = self.fetch(path, method='POST', token=self.token, data=data)
+            self.assertEqual(201, res.status_code)
 
     def test_b_article_b_get(self):
         path = '/article'
+        self.fetchToken()
         data = {'title': self.en_fake.name(), 'content': self.cn_fake.text() + self.cn_fake.text()}
-        response = self.fetch(path, method='POST', token=self.token, data=data)
-        self.assertEqual(201, response.status_code)
-        id = response.json()['id']
+        res = self.fetch(path, method='POST', token=self.token, data=data)
+        self.assertEqual(201, res.status_code)
+        id = res.json()['id']
 
-        response = self.fetch(path + '/231212')
-        self.assertEqual(404, response.status_code)
+        res = self.fetch(path, params={'article_id': 123456})
+        self.assertEqual(404, res.status_code)
 
-        response = self.fetch(path + '/{0}'.format(id))
-        self.assertEqual(200, response.status_code)
-        self.assertTrue('title' in response.json())
+        res = self.fetch(path, params={'article_id': id})
+        self.assertEqual(200, res.status_code)
+        self.assertTrue('title' in res.json()['items'][0])
+
+        res = self.fetch(path)
+        self.assertEqual(200, res.status_code)
+        self.assertEqual(10, len(res.json()['items']))
+        self.assertEqual(1, res.json()['items'][0]['id'])
+        self.assertEqual(10, res.json()['items'][9]['id'])
+
+        res = self.fetch(path, params={'start': 10})
+        self.assertEqual(200, res.status_code)
+        self.assertEqual(10, len(res.json()['items']))
+        self.assertEqual(11, res.json()['items'][0]['id'])
+        self.assertEqual(20, res.json()['items'][9]['id'])
+
+        res = self.fetch(path, params={'start': 20, 'limit': 20})
+        self.assertEqual(200, res.status_code)
+        self.assertEqual(20, len(res.json()['items']))
+        self.assertEqual(21, res.json()['items'][0]['id'])
+        self.assertEqual(40, res.json()['items'][19]['id'])
+
+        res = self.fetch(path, params={'limit': 500})
+        self.assertEqual(200, res.status_code)
+        self.assertNotEqual(500, len(res.json()['items']))
+
+        res = self.fetch(path, params={'limit': 20, 'label_id': 10})
+        self.assertEqual(404, res.status_code)
+
+        res = self.fetch(path, params={'limit': 20, 'label': 1})
+        self.assertEqual(200, res.status_code)
+        self.assertEqual(20, len(res.json()['items']))
 
     def test_b_article_c_put(self):
+        self.fetchToken()
         path = '/article'
         data = {'title': self.en_fake.name(), 'content': self.cn_fake.text() + self.cn_fake.text()}
-        response = self.fetch(path, method='POST', token=self.token, data=data)
-        self.assertEqual(201, response.status_code)
-        id = response.json()['id']
+        res = self.fetch(path, method='POST', token=self.token, data=data)
+        self.assertEqual(201, res.status_code)
+        id = res.json()['id']
 
-        response = self.fetch(path + '/231212', method='PUT')
-        self.assertEqual(401, response.status_code)
+        res = self.fetch(path + '/1', method='PUT')
+        self.assertEqual(401, res.status_code)
 
-        response = self.fetch(path + '/231212', method='PUT', token=self.token)
-        self.assertEqual(400, response.status_code)
+        res = self.fetch(path + '/23333', method='PUT', token=self.token)
+        self.assertEqual(400, res.status_code)
 
-        data = {'title': 'Hello world'}
-        response = self.fetch(path + '/{0}'.format(id), method='PUT', token=self.token, data=data)
-        self.assertEqual(200, response.status_code)
-        response = self.fetch(path + '/{0}'.format(id))
-        self.assertEqual(200, response.status_code)
-        self.assertTrue('Hello world' == response.json()['title'])
+        data = {'title': 'Hello world!'}
+        res = self.fetch(path + '/{0}'.format(id), method='PUT', token=self.token, data=data)
+        self.assertEqual(200, res.status_code)
+
+        res = self.fetch(path + '/23333', method='PUT', token=self.token, data=data)
+        self.assertEqual(404, res.status_code)
+
+        res = self.fetch(path, params={'article_id': id})
+        self.assertEqual(200, res.status_code)
+        self.assertTrue('Hello world!' == res.json()['items'][0]['title'])
 
     def test_b_article_c_delete(self):
+        self.fetchToken()
         path = '/article'
         data = {'title': self.en_fake.name(), 'content': self.cn_fake.text() + self.cn_fake.text()}
-        response = self.fetch(path, method='POST', token=self.token, data=data)
-        self.assertEqual(201, response.status_code)
-        id = response.json()['id']
+        res = self.fetch(path, method='POST', token=self.token, data=data)
+        self.assertEqual(201, res.status_code)
+        id = res.json()['id']
 
-        response = self.fetch(path + '/231212', method='DELETE')
-        self.assertEqual(401, response.status_code)
+        res = self.fetch(path + '/231212', method='DELETE')
+        self.assertEqual(401, res.status_code)
 
-        response = self.fetch(path + '/231212', method='DELETE', token=self.token)
-        self.assertEqual(400, response.status_code)
+        res = self.fetch(path + '/231212', method='DELETE', token=self.token)
+        self.assertEqual(404, res.status_code)
 
-        response = self.fetch(path + '/{0}'.format(id), method='DELETE', token=self.token)
-        self.assertEqual(200, response.status_code)
-        response = self.fetch(path + '/{0}'.format(id))
-        self.assertEqual(404, response.status_code)
-
-    def test_b_article_d_articles(self):
-        path = '/articles'
-        response = self.fetch(path)
-        self.assertEqual(200, response.status_code)
-        self.assertEqual(10, len(response.json()['items']))
-        self.assertEqual(1, response.json()['items'][0]['id'])
-        self.assertEqual(10, response.json()['items'][9]['id'])
-
-        response = self.fetch(path, params={'start': 10})
-        self.assertEqual(200, response.status_code)
-        self.assertEqual(10, len(response.json()['items']))
-        self.assertEqual(11, response.json()['items'][0]['id'])
-        self.assertEqual(20, response.json()['items'][9]['id'])
-
-        response = self.fetch(path, params={'start': 20, 'limit': 20})
-        self.assertEqual(200, response.status_code)
-        self.assertEqual(20, len(response.json()['items']))
-        self.assertEqual(21, response.json()['items'][0]['id'])
-        self.assertEqual(40, response.json()['items'][19]['id'])
-
-        response = self.fetch(path, params={'limit': 500})
-        self.assertEqual(200, response.status_code)
-        self.assertNotEqual(500, len(response.json()['items']))
-
-        response = self.fetch(path, params={'limit': 20, 'label': 'love_you'})
-        self.assertEqual(404, response.status_code)
-
-        response = self.fetch(path, params={'limit': 20, 'label': 'Android'})
-        self.assertEqual(200, response.status_code)
-        self.assertEqual(20, len(response.json()['items']))
-
-    def test_b_article_e_labels(self):
-        path = '/article/{0}/labels'
-        response = self.fetch(path.format(1000))
-        self.assertEqual(404, response.status_code)
-
-        response = self.fetch(path.format(1))
-        self.assertEqual(404, response.status_code)
-
-        response = self.fetch(path.format(10))
-        self.assertEqual(200, response.status_code)
-        self.assertEqual(3, len(response.json()['items']))
-        self.assertIn('Java', response.json()['items'])
+        res = self.fetch(path + '/{0}'.format(id), method='DELETE', token=self.token)
+        self.assertEqual(200, res.status_code)
+        res = self.fetch(path, params={'article_id': id})
+        self.assertEqual(404, res.status_code)
 
     def test_b_article_f_bind_label(self):
+        self.fetchToken()
         path = '/article/{0}/label/{1}'
 
-        response = self.fetch(path.format(1000, 'Android'), method='POST')
-        self.assertEqual(401, response.status_code)
+        res = self.fetch(path.format(1000, 1), method='POST')
+        self.assertEqual(401, res.status_code)
 
-        response = self.fetch(path.format(1000, 'Android'), method='POST', token=self.token)
-        self.assertEqual(400, response.status_code)
+        res = self.fetch(path.format(1000, 1), method='POST', token=self.token)
+        self.assertEqual(400, res.status_code)
 
-        response = self.fetch(path.format(10, 'Android'), method='POST', token=self.token)
-        self.assertEqual(200, response.status_code)
+        res = self.fetch(path.format(10, 1000), method='POST', token=self.token)
+        self.assertEqual(400, res.status_code)
 
-        response = self.fetch(path.format(10, 'Android'), method='POST', token=self.token)
-        self.assertEqual(400, response.status_code)
+        res = self.fetch(path.format(10, 1), method='POST', token=self.token)
+        self.assertEqual(400, res.status_code)
 
-        response = self.fetch(path.format(10, 'Android'), method='POST', token=self.token)
-        self.assertEqual(400, response.status_code)
+        res = self.fetch(path.format(10, 6), method='POST', token=self.token)
+        self.assertEqual(200, res.status_code)
 
-        response = self.fetch(path.format(1000, 'Android'), method='DELETE', token=self.token)
-        self.assertEqual(400, response.status_code)
+        res = self.fetch(path.format(10, 1), method='POST', token=self.token)
+        self.assertEqual(400, res.status_code)
 
-        response = self.fetch(path.format(10, 'Androids'), method='DELETE', token=self.token)
-        self.assertEqual(400, response.status_code)
+        res = self.fetch(path.format(10, 1), method='POST', token=self.token)
+        self.assertEqual(400, res.status_code)
 
-        response = self.fetch(path.format(10, 'Android'), method='DELETE', token=self.token)
-        self.assertEqual(200, response.status_code)
+        res = self.fetch(path.format(1000, 1), method='DELETE', token=self.token)
+        self.assertEqual(400, res.status_code)
 
-        response = self.fetch(path.format(10, 'Android'), method='POST', token=self.token)
-        self.assertEqual(200, response.status_code)
+        res = self.fetch(path.format(10, 1), method='DELETE', token=self.token)
+        self.assertEqual(200, res.status_code)
+
+        res = self.fetch(path.format(10, 1), method='DELETE', token=self.token)
+        self.assertEqual(400, res.status_code)
+
+        res = self.fetch(path.format(10, 1), method='POST', token=self.token)
+        self.assertEqual(200, res.status_code)
+
+    def test_b_blabel_get(self):
+        path = '/label'
+        res = self.fetch(path)
+        self.assertEqual(200, res.status_code)
+        self.assertTrue(len(res.json()['items']) > 0)
+
+        res = self.fetch(path, params={'article_id': 10000})
+        self.assertEqual(404, res.status_code)
+
+        res = self.fetch(path, params={'article_id': 10})
+        self.assertEqual(200, res.status_code)
+        self.assertTrue(len(res.json()['items']) > 0)
 
     def test_c_comment_a_post(self):
+        self.fetchToken()
         path = "/comment"
         data = {'article_id': 1000, 'content': self.cn_fake.text()}
-        response = self.fetch(path, data=data, token=self.token, method='POST')
-        self.assertEqual(400, response.status_code)
+        res = self.fetch(path, data=data, token=self.token, method='POST')
+        self.assertEqual(400, res.status_code)
 
         data = {'article_id': 1, 'content': self.cn_fake.text()}
-        response = self.fetch(path, data=data, token=self.token, method='POST')
-        self.assertEqual(201, response.status_code)
+        res = self.fetch(path, data=data, token=self.token, method='POST')
+        self.assertEqual(201, res.status_code)
 
         for i in range(2, 60):
             data = {'article_id': i, 'content': self.cn_fake.text()}
-            response = self.fetch(path, data=data, token=self.token, method='POST')
-            self.assertEqual(201, response.status_code)
+            res = self.fetch(path, data=data, token=self.token, method='POST')
+            self.assertEqual(201, res.status_code)
 
         for i in range(100):
             data = {'article_id': 10, 'content': self.cn_fake.text()}
-            response = self.fetch(path, data=data, token=self.token, method='POST')
-            self.assertEqual(201, response.status_code)
+            res = self.fetch(path, data=data, token=self.token, method='POST')
+            self.assertEqual(201, res.status_code)
 
     def test_c_comment_b_get(self):
-        path = "/comment/{0}"
-        response = self.fetch(path.format(4294967290))
-        self.assertEqual(404, response.status_code)
+        path = "/comment"
+        res = self.fetch(path, params={'comment_id': 4294967290})
+        self.assertEqual(404, res.status_code)
 
-        response = self.fetch(path.format(1))
-        self.assertEqual(200, response.status_code)
-        self.assertEqual(1, response.json()['id'])
+        res = self.fetch(path, params={'comment_id': 1})
+        self.assertEqual(200, res.status_code)
+        self.assertEqual(1, res.json()['items'][0]['id'])
+
+        res = self.fetch(path, params={'article_id': 122323232})
+        self.assertEqual(404, res.status_code)
+
+        res = self.fetch(path, params={'article_id': 10, 'start': 10})
+        self.assertEqual(200, res.status_code)
+        self.assertTrue(len(res.json()['items']) == 10)
+
+        res = self.fetch(path, params={'article_id': 10, 'start': 20, 'limit': 20})
+        self.assertEqual(200, res.status_code)
+        self.assertEqual(20, len(res.json()['items']))
+
+        res = self.fetch(path, params={'article_id': 10, 'limit': 500})
+        self.assertEqual(200, res.status_code)
+        self.assertEqual(101, len(res.json()['items']))
 
     def test_c_comment_c_delete(self):
+        self.fetchToken()
         path = "/comment/{0}"
-        response = self.fetch(path.format(4294967290), token=self.token, method='DELETE')
-        self.assertEqual(400, response.status_code)
+        res = self.fetch(path.format(4294967290), token=self.token, method='DELETE')
+        self.assertEqual(404, res.status_code)
 
-        response = self.fetch(path.format(59), token=self.token, method='DELETE')
-        self.assertEqual(200, response.status_code)
-
-    def test_c_comment_c_article_comment(self):
-        path = "/article/{0}/comments"
-        response = self.fetch(path.format(4294967290))
-        self.assertEqual(404, response.status_code)
-
-        response = self.fetch(path.format(10), params={'start': 10})
-        self.assertEqual(200, response.status_code)
-        self.assertTrue(len(response.json()['items']) == 10)
-
-        response = self.fetch(path.format(10), params={'start': 20, 'limit': 20})
-        self.assertEqual(200, response.status_code)
-        self.assertEqual(20, len(response.json()['items']))
-
-        response = self.fetch(path.format(10), params={'limit': 500})
-        self.assertEqual(200, response.status_code)
-        self.assertEqual(101, len(response.json()['items']))
+        res = self.fetch(path.format(59), token=self.token, method='DELETE')
+        self.assertEqual(200, res.status_code)
 
 
 if __name__ == '__main__':

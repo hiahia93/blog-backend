@@ -5,6 +5,7 @@ from apps.handlers import DefaultHandler, get_json, auth
 from apps.article.model import Article
 from apps.label.model import Label
 from apps.util.constant import Constant
+from apps.util.utils import list_all_type
 
 
 class ArticleHandler(DefaultHandler, ABC):
@@ -41,7 +42,11 @@ class ArticleHandler(DefaultHandler, ABC):
             return
         article_id = one[0]
         labels = self.body.get('labels')
-        if 'labels' in self.body and isinstance(labels, list):
+        if 'labels' in self.body:
+            if not isinstance(labels, list) or not list_all_type(labels, int):
+                self.set_status(400)
+                self.finish(Constant.params_error)
+                return
             label = Label()
             await label.connect()
             await label.binding_labels(article_id, labels)
@@ -77,15 +82,15 @@ class ArticleHandler(DefaultHandler, ABC):
 
         start = int(self.get_argument('start', -1))
         limit = int(self.get_argument('limit', -1))
-        label = self.get_argument('label', '')
+        label_id = self.get_argument('label_id', None)
         article_id = self.get_argument('article_id', None)
         article = Article()
         await article.connect()
-        if not article_id:
+        if article_id:
             one = await article.select(int(article_id), 'id', 'title', 'content', 'views', 'created_at', 'updated_at')
-            many = [one] if not one else []
+            many = [one] if one else []
         else:
-            many = await article.select_articles(start, limit, label)
+            many = await article.select_articles(start, limit, label_id)
         del article
         if many is None or len(many) == 0:
             self.set_status(404)
@@ -182,11 +187,11 @@ class ArticleLabelHandler(DefaultHandler, ABC):
         await self.handle(False, *args)
 
     async def handle(self, insert: bool, *args):
-        article_id = args[0]
-        label = args[1]
+        article_id = int(args[0])
+        label_id = int(args[1])
         article = Article()
         await article.connect()
-        count = await article.handle_article_label(article_id, label, insert)
+        count = await article.handle_article_label(article_id, label_id, insert)
         if count <= 0:
             self.set_status(400)
             return

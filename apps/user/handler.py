@@ -34,8 +34,8 @@ class UserHandler(DefaultHandler, ABC):
         @apiSuccess (200) {Number} [code] Only return when you given a specific check param.
         @apiError (4xx) {Number} code The error code.
         """
-        check = self.get_argument('check', None) is not None
-        if not check:
+        check = self.get_argument('check', None)
+        if check is None:
             token = self.request.headers.get("token", None)
             if token is None:
                 self.set_status(401)
@@ -71,19 +71,20 @@ class UserHandler(DefaultHandler, ABC):
                 'summary': one[5],
             })
 
-    @get_json('password', 'email')
+    @get_json('id', 'password', 'email')
     async def post(self, *args, **kwargs):
         """
         @api {post} /user/:id Registration
         @apiVersion 0.1.0
         @apiName UserRegistration
         @apiGroup User
+        @apiParam {String} id JSON param, the id of the user.
         @apiParam {String} password JSON param, the password of the user.
         @apiParam {String} email JSON param, the email of the user.
         @apiSuccess (201) {String} code The successful code.
         @apiError (4xx) {Number} code The error code.
         """
-        id = args[0]
+        id = self.body.get('id')
         pwd = self.body.get('password')
         email = self.body.get('email')
         if email != cf.get('server', 'email'):
@@ -105,7 +106,7 @@ class UserHandler(DefaultHandler, ABC):
     @get_json()
     async def put(self, *args, **kwargs):
         """
-        @api {put} /user/:id Update user information
+        @api {put} /user Update user information
         @apiVersion 0.1.0
         @apiName UserUpdate
         @apiGroup User
@@ -124,7 +125,7 @@ class UserHandler(DefaultHandler, ABC):
         @apiSuccess (200) {String} code The successful code.
         @apiError (4xx) {Number} code The error code.
         """
-        id = args[0]
+        id = self.current_user
         user = User()
         await user.connect()
         if 'email' in self.body:
