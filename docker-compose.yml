@@ -8,6 +8,7 @@ services:
       - 8889:80
     build:
       context: ./doc
+      dockerfile: ../Dockerfile-Docs
 
   nginx:
     container_name: blog-nginx

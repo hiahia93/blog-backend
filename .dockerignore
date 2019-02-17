@@ -10,3 +10,5 @@ table_truncate.sql
 docker-mysql.sh
 blog.sql
 doc
+amd_centos
+config-private.ini
