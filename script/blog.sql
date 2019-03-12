@@ -17,6 +17,7 @@ CREATE TABLE IF NOT EXISTS Article (
   id SMALLINT UNSIGNED NOT NULL AUTO_INCREMENT COMMENT '主键',
   title VARCHAR(32) BINARY UNIQUE NOT NULL COMMENT '标题',
   content TEXT NOT NULL COMMENT '文章内容',
+  public TINYINT(1) NOT NULL DEFAULT 1 COMMENT '文章是否公开，默认公开',
   views INT UNSIGNED DEFAULT 0 COMMENT '文章阅读量',
   created_at TIMESTAMP DEFAULT current_timestamp COMMENT '创建时间',
   updated_at TIMESTAMP DEFAULT current_timestamp ON UPDATE current_timestamp COMMENT '最后一次更新时间',

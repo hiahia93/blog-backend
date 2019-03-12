@@ -8,7 +8,7 @@ services:
       - 8889:80
     build:
       context: ./doc
-      dockerfile: ../Dockerfile-Docs
+      dockerfile: ../script/Dockerfile-Docs
 
   nginx:
     container_name: blog-nginx
@@ -17,7 +17,7 @@ services:
     ports:
       - 8888:80
     volumes:
-      - ./nginx.conf:/etc/nginx/nginx.conf
+      - ./script/nginx.conf:/etc/nginx/nginx.conf
       - /var/log/blogback:/var/log/nginx
 
   backend:
@@ -42,5 +42,5 @@ services:
     ports:
       - 3306:3306
     volumes:
-      - ./blog.sql:/docker-entrypoint-initdb.d/blog.sql
+      - ./script/blog.sql:/docker-entrypoint-initdb.d/blog.sql
 #      - ~/docker/mysql/data:/var/lib/mysql

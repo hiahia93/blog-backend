@@ -1,4 +1,4 @@
-from apps.article.handler import ArticleHandler, ArticleLabelHandler
+from app.api.article.handler import ArticleHandler, ArticleLabelHandler
 
 url = [
     ('/api/article/(\d+)', ArticleHandler),

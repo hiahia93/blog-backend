@@ -4,7 +4,7 @@ from configparser import ConfigParser
 
 def truncate_table():
     cf = ConfigParser()
-    cf.read("../config.ini")
+    cf.read("../script/config.ini")
     db = pymysql.connect(
         # cf.get('mysql', 'host'),
         'localhost',

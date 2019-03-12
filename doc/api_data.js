@@ -50,6 +50,13 @@ define({ "api": [
           },
           {
             "group": "Parameter",
+            "type": "Number",
+            "optional": false,
+            "field": "public",
+            "description": "<p>whether the article is public</p>"
+          },
+          {
+            "group": "Parameter",
             "type": "Number[]",
             "optional": true,
             "field": "labels",
@@ -76,15 +83,15 @@ define({ "api": [
         "400": [
           {
             "group": "400",
-            "type": "Number",
+            "type": "String",
             "optional": false,
-            "field": "code",
-            "description": "<p>The error code.</p>"
+            "field": "err",
+            "description": "<p>The error message.</p>"
           }
         ]
       }
     },
-    "filename": "apps/article/handler.py",
+    "filename": "app/api/article/handler.py",
     "groupTitle": "Article"
   },
   {
@@ -121,13 +128,12 @@ define({ "api": [
     },
     "success": {
       "fields": {
-        "200": [
+        "204": [
           {
-            "group": "200",
-            "type": "Number",
+            "group": "204",
             "optional": false,
-            "field": "code",
-            "description": "<p>The successful code.</p>"
+            "field": "status",
+            "description": ""
           }
         ]
       }
@@ -137,15 +143,15 @@ define({ "api": [
         "404": [
           {
             "group": "404",
-            "type": "Number",
+            "type": "String",
             "optional": false,
-            "field": "code",
-            "description": "<p>The error code.</p>"
+            "field": "err",
+            "description": "<p>The error message.</p>"
           }
         ]
       }
     },
-    "filename": "apps/article/handler.py",
+    "filename": "app/api/article/handler.py",
     "groupTitle": "Article"
   },
   {
@@ -182,13 +188,12 @@ define({ "api": [
     },
     "success": {
       "fields": {
-        "200": [
+        "204": [
           {
-            "group": "200",
-            "type": "Number",
+            "group": "204",
             "optional": false,
-            "field": "id",
-            "description": "<p>The created article id.</p>"
+            "field": "status",
+            "description": ""
           }
         ]
       }
@@ -198,15 +203,15 @@ define({ "api": [
         "400": [
           {
             "group": "400",
-            "type": "Number",
+            "type": "String",
             "optional": false,
-            "field": "code",
-            "description": "<p>The error code.</p>"
+            "field": "err",
+            "description": "<p>The error message.</p>"
           }
         ]
       }
     },
-    "filename": "apps/article/handler.py",
+    "filename": "app/api/article/handler.py",
     "groupTitle": "Article"
   },
   {
@@ -243,13 +248,12 @@ define({ "api": [
     },
     "success": {
       "fields": {
-        "200": [
+        "204": [
           {
-            "group": "200",
-            "type": "Number",
+            "group": "204",
             "optional": false,
-            "field": "id",
-            "description": "<p>The created article id.</p>"
+            "field": "status",
+            "description": ""
           }
         ]
       }
@@ -259,15 +263,15 @@ define({ "api": [
         "400": [
           {
             "group": "400",
-            "type": "Number",
+            "type": "String",
             "optional": false,
-            "field": "code",
-            "description": "<p>The error code.</p>"
+            "field": "err",
+            "description": "<p>The error message.</p>"
           }
         ]
       }
     },
-    "filename": "apps/article/handler.py",
+    "filename": "app/api/article/handler.py",
     "groupTitle": "Article"
   },
   {
@@ -318,19 +322,25 @@ define({ "api": [
             "optional": true,
             "field": "content",
             "description": "<p>The new content of the article</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "Number",
+            "optional": true,
+            "field": "public",
+            "description": "<p>whether the article is public</p>"
           }
         ]
       }
     },
     "success": {
       "fields": {
-        "200": [
+        "204": [
           {
-            "group": "200",
-            "type": "Number",
+            "group": "204",
             "optional": false,
-            "field": "code",
-            "description": "<p>The successful code.</p>"
+            "field": "status",
+            "description": ""
           }
         ]
       }
@@ -340,15 +350,15 @@ define({ "api": [
         "404": [
           {
             "group": "404",
-            "type": "Number",
+            "type": "String",
             "optional": false,
-            "field": "code",
-            "description": "<p>The error code.</p>"
+            "field": "err",
+            "description": "<p>The error message.</p>"
           }
         ]
       }
     },
-    "filename": "apps/article/handler.py",
+    "filename": "app/api/article/handler.py",
     "groupTitle": "Article"
   },
   {
@@ -409,7 +419,7 @@ define({ "api": [
       "examples": [
         {
           "title": "Success-Response:",
-          "content": "HTTP/1.1 200 OK\n{\n   \"items\": [\n       \"id\": 1,\n       \"title\": \"Hello\",\n       \"content\": \"I am Edgar, welcome to my world.\",\n       \"views\": 2333,\n       \"created_at\": 1546414975,\n       \"updated_at\": 1546414975,\n   ]\n}",
+          "content": "HTTP/1.1 200 OK\n{\n   \"items\": [\n       \"id\": 1,\n       \"title\": \"Hello\",\n       \"content\": \"I am Edgar, welcome to my world.\",\n       \"views\": 2333,\n       \"public\": 1,\n       \"created_at\": 1546414975,\n       \"updated_at\": 1546414975,\n   ]\n}",
           "type": "json"
         }
       ]
@@ -419,15 +429,15 @@ define({ "api": [
         "404": [
           {
             "group": "404",
-            "type": "Number",
+            "type": "String",
             "optional": false,
-            "field": "code",
-            "description": "<p>The error code.</p>"
+            "field": "err",
+            "description": "<p>The error message.</p>"
           }
         ]
       }
     },
-    "filename": "apps/article/handler.py",
+    "filename": "app/api/article/handler.py",
     "groupTitle": "Article"
   },
   {
@@ -490,7 +500,7 @@ define({ "api": [
         ]
       }
     },
-    "filename": "apps/handlers.py",
+    "filename": "app/handlers.py",
     "groupTitle": "Auth"
   },
   {
@@ -561,15 +571,15 @@ define({ "api": [
         "404": [
           {
             "group": "404",
-            "type": "Number",
+            "type": "String",
             "optional": false,
-            "field": "code",
-            "description": "<p>The error code.</p>"
+            "field": "err",
+            "description": "<p>The error message.</p>"
           }
         ]
       }
     },
-    "filename": "apps/comment/handler.py",
+    "filename": "app/api/comment/handler.py",
     "groupTitle": "Comment"
   },
   {
@@ -604,10 +614,9 @@ define({ "api": [
         "201": [
           {
             "group": "201",
-            "type": "Number",
             "optional": false,
-            "field": "code",
-            "description": "<p>The successful code</p>"
+            "field": "status",
+            "description": ""
           }
         ]
       }
@@ -617,15 +626,15 @@ define({ "api": [
         "404": [
           {
             "group": "404",
-            "type": "Number",
+            "type": "String",
             "optional": false,
-            "field": "code",
-            "description": "<p>The error code</p>"
+            "field": "err",
+            "description": "<p>The error message.</p>"
           }
         ]
       }
     },
-    "filename": "apps/comment/handler.py",
+    "filename": "app/api/comment/handler.py",
     "groupTitle": "Comment"
   },
   {
@@ -662,13 +671,12 @@ define({ "api": [
     },
     "success": {
       "fields": {
-        "200": [
+        "204": [
           {
-            "group": "200",
-            "type": "Number",
+            "group": "204",
             "optional": false,
-            "field": "code",
-            "description": "<p>The successful code.</p>"
+            "field": "status",
+            "description": ""
           }
         ]
       }
@@ -678,35 +686,16 @@ define({ "api": [
         "404": [
           {
             "group": "404",
-            "type": "Number",
+            "type": "String",
             "optional": false,
-            "field": "code",
-            "description": "<p>The error code.</p>"
+            "field": "err",
+            "description": "<p>The error message.</p>"
           }
         ]
       }
     },
-    "filename": "apps/comment/handler.py",
+    "filename": "app/api/comment/handler.py",
     "groupTitle": "Comment"
-  },
-  {
-    "type": "get",
-    "url": "/common/code",
-    "title": "Response code description,not actually a api",
-    "version": "0.1.0",
-    "name": "CommonCode",
-    "group": "Common",
-    "success": {
-      "examples": [
-        {
-          "title": "Success-Response:",
-          "content": "{\n    0:  \"Request OK\",\n    40: \"Params error\",\n    41: \"Password error\",\n    42: \"User not exists\",\n    43: \"User exists\",\n    44: \"Resource exists\",\n    45: \"Resource not exists\",\n    46: \"Params insufficiency\",\n    47: \"Unauthorized\",\n    48: \"Bad request\",\n    50: \"Internal error\",\n}",
-          "type": "json"
-        }
-      ]
-    },
-    "filename": "apps/util/constant.py",
-    "groupTitle": "Common"
   },
   {
     "type": "post",
@@ -771,15 +760,15 @@ define({ "api": [
         "400": [
           {
             "group": "400",
-            "type": "Number",
+            "type": "String",
             "optional": false,
-            "field": "code",
-            "description": "<p>The error code.</p>"
+            "field": "err",
+            "description": "<p>The error message.</p>"
           }
         ]
       }
     },
-    "filename": "apps/label/handler.py",
+    "filename": "app/api/label/handler.py",
     "groupTitle": "Label"
   },
   {
@@ -816,13 +805,12 @@ define({ "api": [
     },
     "success": {
       "fields": {
-        "200": [
+        "204": [
           {
-            "group": "200",
-            "type": "Number",
+            "group": "204",
             "optional": false,
-            "field": "code",
-            "description": "<p>The successful code.</p>"
+            "field": "status",
+            "description": ""
           }
         ]
       }
@@ -832,15 +820,15 @@ define({ "api": [
         "404": [
           {
             "group": "404",
-            "type": "Number",
+            "type": "String",
             "optional": false,
-            "field": "code",
-            "description": "<p>The error code.</p>"
+            "field": "err",
+            "description": "<p>The error message.</p>"
           }
         ]
       }
     },
-    "filename": "apps/label/handler.py",
+    "filename": "app/api/label/handler.py",
     "groupTitle": "Label"
   },
   {
@@ -888,15 +876,15 @@ define({ "api": [
         "404": [
           {
             "group": "404",
-            "type": "Number",
+            "type": "String",
             "optional": false,
-            "field": "code",
-            "description": "<p>The error code.</p>"
+            "field": "err",
+            "description": "<p>The error message.</p>"
           }
         ]
       }
     },
-    "filename": "apps/label/handler.py",
+    "filename": "app/api/label/handler.py",
     "groupTitle": "Label"
   },
   {
@@ -946,13 +934,12 @@ define({ "api": [
     },
     "success": {
       "fields": {
-        "200": [
+        "204": [
           {
-            "group": "200",
-            "type": "Number",
+            "group": "204",
             "optional": false,
-            "field": "code",
-            "description": "<p>The successful code.</p>"
+            "field": "status",
+            "description": ""
           }
         ]
       }
@@ -962,20 +949,67 @@ define({ "api": [
         "404": [
           {
             "group": "404",
-            "type": "Number",
+            "type": "String",
             "optional": false,
-            "field": "code",
-            "description": "<p>The error code.</p>"
+            "field": "err",
+            "description": "<p>The error message.</p>"
           }
         ]
       }
     },
-    "filename": "apps/label/handler.py",
+    "filename": "app/api/label/handler.py",
     "groupTitle": "Label"
   },
   {
     "type": "get",
-    "url": "/user?check=y&id=john",
+    "url": "/user/exists?id=john",
+    "title": "",
+    "version": "0.1.0",
+    "name": "UserExists",
+    "group": "User",
+    "parameter": {
+      "fields": {
+        "Parameter": [
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "id",
+            "description": "<p>The username</p>"
+          }
+        ]
+      }
+    },
+    "success": {
+      "fields": {
+        "204": [
+          {
+            "group": "204",
+            "optional": false,
+            "field": "status",
+            "description": ""
+          }
+        ]
+      }
+    },
+    "error": {
+      "fields": {
+        "404": [
+          {
+            "group": "404",
+            "optional": false,
+            "field": "c",
+            "description": ""
+          }
+        ]
+      }
+    },
+    "filename": "app/api/user/handler.py",
+    "groupTitle": "User"
+  },
+  {
+    "type": "get",
+    "url": "/user",
     "title": "Get user information",
     "version": "0.1.0",
     "name": "UserInfo",
@@ -1004,26 +1038,6 @@ define({ "api": [
           "type": "json"
         }
       ]
-    },
-    "parameter": {
-      "fields": {
-        "Parameter": [
-          {
-            "group": "Parameter",
-            "type": "String",
-            "optional": true,
-            "field": "check",
-            "description": "<p>just check if the user exists</p>"
-          },
-          {
-            "group": "Parameter",
-            "type": "String",
-            "optional": true,
-            "field": "id",
-            "description": "<p>A Unauthorized user id, only use when a check param was given</p>"
-          }
-        ]
-      }
     },
     "success": {
       "fields": {
@@ -1069,31 +1083,24 @@ define({ "api": [
             "optional": false,
             "field": "summary",
             "description": "<p>The brief introduction of the user.</p>"
-          },
-          {
-            "group": "200",
-            "type": "Number",
-            "optional": true,
-            "field": "code",
-            "description": "<p>Only return when you given a specific check param.</p>"
           }
         ]
       }
     },
     "error": {
       "fields": {
-        "4xx": [
+        "404": [
           {
-            "group": "4xx",
-            "type": "Number",
+            "group": "404",
+            "type": "String",
             "optional": false,
-            "field": "code",
-            "description": "<p>The error code.</p>"
+            "field": "err",
+            "description": "<p>The error message.</p>"
           }
         ]
       }
     },
-    "filename": "apps/user/handler.py",
+    "filename": "app/api/user/handler.py",
     "groupTitle": "User"
   },
   {
@@ -1135,28 +1142,27 @@ define({ "api": [
         "201": [
           {
             "group": "201",
-            "type": "String",
             "optional": false,
-            "field": "code",
-            "description": "<p>The successful code.</p>"
+            "field": "status",
+            "description": ""
           }
         ]
       }
     },
     "error": {
       "fields": {
-        "4xx": [
+        "400": [
           {
-            "group": "4xx",
-            "type": "Number",
+            "group": "400",
+            "type": "String",
             "optional": false,
-            "field": "code",
-            "description": "<p>The error code.</p>"
+            "field": "err",
+            "description": "<p>The error message.</p>"
           }
         ]
       }
     },
-    "filename": "apps/user/handler.py",
+    "filename": "app/api/user/handler.py",
     "groupTitle": "User"
   },
   {
@@ -1241,31 +1247,30 @@ define({ "api": [
     },
     "success": {
       "fields": {
-        "200": [
+        "204": [
           {
-            "group": "200",
-            "type": "String",
+            "group": "204",
             "optional": false,
-            "field": "code",
-            "description": "<p>The successful code.</p>"
+            "field": "status",
+            "description": ""
           }
         ]
       }
     },
     "error": {
       "fields": {
-        "4xx": [
+        "400": [
           {
-            "group": "4xx",
-            "type": "Number",
+            "group": "400",
+            "type": "String",
             "optional": false,
-            "field": "code",
-            "description": "<p>The error code.</p>"
+            "field": "err",
+            "description": "<p>The error message.</p>"
           }
         ]
       }
     },
-    "filename": "apps/user/handler.py",
+    "filename": "app/api/user/handler.py",
     "groupTitle": "User"
   }
 ] });

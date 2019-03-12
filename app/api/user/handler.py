@@ -1,19 +1,18 @@
 from abc import ABC
 
-import jwt
-
-from apps import cf
-from apps.handlers import DefaultHandler, get_json, auth
-from apps.user.model import User
-from apps.util.encrypt import md5
-from apps.util.constant import Constant
+from app import cf
+from app.handlers import DefaultHandler, get_json, auth
+from app.api.user.model import User
+from app.util.encrypt import md5
+from app.util.constant import Constant
 
 
 class UserHandler(DefaultHandler, ABC):
 
+    @auth
     async def get(self, *args, **kwargs):
         """
-        @api {get} /user?check=y&id=john Get user information
+        @api {get} /user Get user information
         @apiVersion 0.1.0
         @apiName UserInfo
         @apiGroup User
@@ -23,53 +22,31 @@ class UserHandler(DefaultHandler, ABC):
         {
             "token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpZCI6IkVkZ2FyIiwiaWF0IjoxNTQ2MzYxMDQ1LCJleHAiOjE1NDY5NjU4NDV9.zqwf8aemhrH17CZaEt2SKPojpd68OqIcPJfTClAkuC0"
         }
-        @apiParam {String} [check] just check if the user exists
-        @apiParam {String} [id] A Unauthorized user id, only use when a check param was given
         @apiSuccess (200) {String} nickname The nickname of the user.
         @apiSuccess (200) {String} email The email of the user.
         @apiSuccess (200) {String} avatar The avatar url of the user.
         @apiSuccess (200) {Number} gender The gender of the user, 0 is male, 1 is female.
         @apiSuccess (200) {String} city The city where user often lives.
         @apiSuccess (200) {String} summary The brief introduction of the user.
-        @apiSuccess (200) {Number} [code] Only return when you given a specific check param.
-        @apiError (4xx) {Number} code The error code.
+        @apiError (404) {String} err The error message.
         """
-        check = self.get_argument('check', None)
-        if check is None:
-            token = self.request.headers.get("token", None)
-            if token is None:
-                self.set_status(401)
-                self.finish(Constant.unauthorized)
-                return
-            try:
-                playload = jwt.decode(token, cf.get('server', 'secret_key'), algorithms=['HS256'],
-                                      options={"verify_exp": True})
-            except Exception:
-                self.set_status(401)
-                self.finish(Constant.unauthorized)
-                return
-            id = playload['id']
-        else:
-            id = self.get_argument('id', '')
+        username = self.current_user
         user = User()
         await user.connect()
-        one = await user.select(id, 'nickname', 'email', 'avatar', 'gender', 'city', 'summary')
+        one = await user.select(username, 'nickname', 'email', 'avatar', 'gender', 'city', 'summary')
         del user
         if one is None:
             self.set_status(404)
             self.finish(Constant.user_not_exists)
             return
-        if check:
-            self.finish(Constant.ok)
-        else:
-            self.finish({
-                'nickname': one[0],
-                'email': one[1],
-                'avatar': one[2],
-                'gender': one[3],
-                'city': one[4],
-                'summary': one[5],
-            })
+        self.finish({
+            'nickname': one[0],
+            'email': one[1],
+            'avatar': one[2],
+            'gender': one[3],
+            'city': one[4],
+            'summary': one[5],
+        })
 
     @get_json('id', 'password', 'email')
     async def post(self, *args, **kwargs):
@@ -81,10 +58,10 @@ class UserHandler(DefaultHandler, ABC):
         @apiParam {String} id JSON param, the id of the user.
         @apiParam {String} password JSON param, the password of the user.
         @apiParam {String} email JSON param, the email of the user.
-        @apiSuccess (201) {String} code The successful code.
-        @apiError (4xx) {Number} code The error code.
+        @apiSuccess (201) status
+        @apiError (400) {String} err The error message.
         """
-        id = self.body.get('id')
+        username = self.body.get('id')
         pwd = self.body.get('password')
         email = self.body.get('email')
         if email != cf.get('server', 'email'):
@@ -93,14 +70,13 @@ class UserHandler(DefaultHandler, ABC):
             return
         user = User()
         await user.connect()
-        count = await user.insert_user(id, md5(pwd), email)
+        count = await user.insert_user(username, md5(pwd), email)
         del user
         if count <= 0:
             self.set_status(400)
             self.finish(Constant.user_exists)
             return
         self.set_status(201)
-        self.finish(Constant.ok)
 
     @auth
     @get_json()
@@ -122,8 +98,8 @@ class UserHandler(DefaultHandler, ABC):
         @apiParam {Number} [gender] JSON param, the gender of the user, 0 is male, 1 is female.
         @apiParam {String} [city] JSON param, the city where user often lives.
         @apiParam {String} [summary] JSON param, the brief introduction of the user.
-        @apiSuccess (200) {String} code The successful code.
-        @apiError (4xx) {Number} code The error code.
+        @apiSuccess (204) status
+        @apiError (400) {String} err The error message.
         """
         id = self.current_user
         user = User()
@@ -139,4 +115,29 @@ class UserHandler(DefaultHandler, ABC):
             self.set_status(400)
             self.finish(Constant.bad_request)
             return
-        self.finish(Constant.ok)
+        self.set_status(204)
+
+
+class UserExistsHandler(DefaultHandler, ABC):
+
+    async def get(self, *args, **kwargs):
+        """
+        @api {get} /user/exists?id=john
+        @apiVersion 0.1.0
+        @apiName UserExists
+        @apiGroup User
+
+        @apiParam {String} id The username
+        @apiSuccess (204) status
+        @apiError (404) c
+        """
+        username = self.get_argument('id', None)
+        user = User()
+        await user.connect()
+        one = await user.select(username)
+        del user
+        if one is None:
+            self.set_status(404)
+            self.finish(Constant.user_not_exists)
+            return
+        self.set_status(204)

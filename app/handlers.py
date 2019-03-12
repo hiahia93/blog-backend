@@ -6,23 +6,23 @@ import functools
 import jwt
 from tornado.web import RequestHandler
 
-from apps import logger, cf
-from apps.user.model import User
-from apps.util.constant import Constant
-from apps.util.encrypt import md5
+from app import logger, cf
+from app.api.user.model import User
+from app.util.constant import Constant
+from app.util.encrypt import md5
 
 
 class DefaultHandler(RequestHandler, ABC):
     body = None
 
-    def set_default_headers(self):
-        # allow to cross domain
-        self.set_header('Access-Control-Allow-Origin', '*')
-        self.set_header('Access-Control-Allow-Headers', 'x-requested-with, Content-Type, token')
-        self.set_header('Access-Control-Allow-Methods', 'POST, GET, PUT, DELETE, OPTIONS')
-
-    async def options(self, *args, **kwargs):
-        pass
+    # def set_default_headers(self):
+    #     # allow to cross domain
+    #     self.set_header('Access-Control-Allow-Origin', '*')
+    #     self.set_header('Access-Control-Allow-Headers', 'x-requested-with, Content-Type, token')
+    #     self.set_header('Access-Control-Allow-Methods', 'POST, GET, PUT, DELETE, OPTIONS')
+    #
+    # async def options(self, *args, **kwargs):
+    #     pass
 
     async def put_one(self, table, *args, **kwargs):
         id = int(args[0])
@@ -33,7 +33,7 @@ class DefaultHandler(RequestHandler, ABC):
             self.set_status(404)
             self.finish(Constant.resource_not_exists)
             return
-        self.finish(Constant.ok)
+        self.set_status(204)
 
     async def delete_one(self, table, *args, **kwargs):
         id = int(args[0])
@@ -44,7 +44,7 @@ class DefaultHandler(RequestHandler, ABC):
             self.set_status(404)
             self.finish(Constant.resource_not_exists)
             return
-        self.finish(Constant.ok)
+        self.set_status(204)
 
 
 def get_json(*fields):
@@ -100,11 +100,11 @@ class AuthHandler(DefaultHandler, ABC):
             }
         @apiError (4xx) {Number} code The error code.
         """
-        id = self.body.get('id')
+        username = self.body.get('id')
         pwd = self.body.get('password')
         user = User()
         await user.connect()
-        one = await user.select(id, 'password')
+        one = await user.select(username, 'password')
         del user
         if one is None:
             self.set_status(404)
@@ -118,7 +118,7 @@ class AuthHandler(DefaultHandler, ABC):
         now = int(time.time())
         exp = int(cf.get('server', 'token_exp'))
         payload = {
-            "id": id,
+            "id": username,
             "iat": now,
             "exp": now + exp
         }

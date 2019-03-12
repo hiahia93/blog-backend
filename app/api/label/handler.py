@@ -1,8 +1,8 @@
 from abc import ABC
 
-from apps.handlers import DefaultHandler, get_json, auth
-from apps.label.model import Label
-from apps.util.constant import Constant
+from app.handlers import DefaultHandler, get_json, auth
+from app.api.label.model import Label
+from app.util.constant import Constant
 
 
 class LabelHandler(DefaultHandler, ABC):
@@ -29,7 +29,7 @@ class LabelHandler(DefaultHandler, ABC):
                     }
                 ]
             }
-        @apiError (404) {Number} code The error code.
+        @apiError (404) {String} err The error message.
         """
         la = Label()
         await la.connect()
@@ -66,7 +66,7 @@ class LabelHandler(DefaultHandler, ABC):
         }
         @apiParam {string} label JSON param, the label name
         @apiSuccess (201) {Number} id The created label id.
-        @apiError (400) {Number} code The error code.
+        @apiError (400) {String} err The error message.
         """
         label = self.body.get('label')
         la = Label()
@@ -95,8 +95,8 @@ class LabelHandler(DefaultHandler, ABC):
             "token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpZCI6IkVkZ2FyIiwiaWF0IjoxNTQ2MzYxMDQ1LCJleHAiOjE1NDY5NjU4NDV9.zqwf8aemhrH17CZaEt2SKPojpd68OqIcPJfTClAkuC0"
         }
         @apiParam {string} label JSON param, the new label name
-        @apiSuccess (200) {Number} code The successful code.
-        @apiError (404) {Number} code The error code.
+        @apiSuccess (204) status
+        @apiError (404) {String} err The error message.
         """
         await self.put_one(Label(), *args, **kwargs)
 
@@ -113,7 +113,7 @@ class LabelHandler(DefaultHandler, ABC):
         {
             "token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpZCI6IkVkZ2FyIiwiaWF0IjoxNTQ2MzYxMDQ1LCJleHAiOjE1NDY5NjU4NDV9.zqwf8aemhrH17CZaEt2SKPojpd68OqIcPJfTClAkuC0"
         }
-        @apiSuccess (200) {Number} code The successful code.
-        @apiError (404) {Number} code The error code.
+        @apiSuccess (204) status
+        @apiError (404) {String} err The error message.
         """
         await self.delete_one(Label(), *args, **kwargs)

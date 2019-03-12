@@ -1,4 +1,4 @@
-from apps.comment.handler import CommentHandler
+from app.api.comment.handler import CommentHandler
 
 url = [
     ('/api/comment/(\d+)', CommentHandler),

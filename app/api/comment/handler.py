@@ -1,9 +1,9 @@
 from abc import ABC
 import time
 
-from apps.handlers import DefaultHandler, get_json, auth
-from apps.comment.model import Comment
-from apps.util.constant import Constant
+from app.handlers import DefaultHandler, get_json, auth
+from app.api.comment.model import Comment
+from app.util.constant import Constant
 
 
 class CommentHandler(DefaultHandler, ABC):
@@ -18,8 +18,8 @@ class CommentHandler(DefaultHandler, ABC):
         @apiGroup Comment
         @apiParam {Number} article_id JSON param, the id of a article
         @apiParam {Number} content JSON param, a comment content
-        @apiSuccess (201) {Number} code The successful code
-        @apiError (404) {Number} code The error code
+        @apiSuccess (201) status
+        @apiError (404) {String} err The error message.
         """
         article_id = int(self.body.get('article_id'))
         content = self.body.get('content')
@@ -32,7 +32,6 @@ class CommentHandler(DefaultHandler, ABC):
             self.finish(Constant.bad_request)
             return
         self.set_status(201)
-        self.finish(Constant.ok)
 
     async def get(self, *args, **kwargs):
         """
@@ -57,7 +56,7 @@ class CommentHandler(DefaultHandler, ABC):
                     "updated_at": 1546414975,
                 ]
             }
-        @apiError (404) {Number} code The error code.
+        @apiError (404) {String} err The error message.
         """
         comment_id = self.get_argument('comment_id', None)
         comment = Comment()
@@ -102,7 +101,7 @@ class CommentHandler(DefaultHandler, ABC):
         {
             "token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpZCI6IkVkZ2FyIiwiaWF0IjoxNTQ2MzYxMDQ1LCJleHAiOjE1NDY5NjU4NDV9.zqwf8aemhrH17CZaEt2SKPojpd68OqIcPJfTClAkuC0"
         }
-        @apiSuccess (200) {Number} code The successful code.
-        @apiError (404) {Number} code The error code.
+        @apiSuccess (204) status
+        @apiError (404) {String} err The error message.
         """
         await self.delete_one(Comment(), *args, **kwargs)

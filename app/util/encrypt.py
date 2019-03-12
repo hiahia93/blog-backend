@@ -1,5 +1,4 @@
 import hashlib
-import random
 
 
 def md5(text):

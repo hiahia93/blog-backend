@@ -1,7 +1,7 @@
 
 import aiomysql
 
-from apps import logger, cf
+from app import logger, cf
 
 
 class BaseModel:

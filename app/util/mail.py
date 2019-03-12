@@ -2,7 +2,7 @@ import smtplib
 from email.mime.text import MIMEText
 from email.utils import formataddr
 
-from apps import logger, cf
+from app import logger, cf
 
 
 async def mail_text(target: str, target_name: str, message: str) -> bool:

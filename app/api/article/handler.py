@@ -1,17 +1,17 @@
 from abc import ABC
 import time
 
-from apps.handlers import DefaultHandler, get_json, auth
-from apps.article.model import Article
-from apps.label.model import Label
-from apps.util.constant import Constant
-from apps.util.utils import list_all_type
+from app.handlers import DefaultHandler, get_json, auth
+from app.api.article.model import Article
+from app.api.label.model import Label
+from app.util.constant import Constant
+from app.util.utils import list_all_type
 
 
 class ArticleHandler(DefaultHandler, ABC):
 
     @auth
-    @get_json('title', 'content')
+    @get_json('title', 'content', 'public')
     async def post(self, *args, **kwargs):
         """
         @api {post} /article Create an article
@@ -26,15 +26,17 @@ class ArticleHandler(DefaultHandler, ABC):
         }
         @apiParam {string} title The title of the article
         @apiParam {string} content The content of the article
+        @apiParam {Number} public whether the article is public
         @apiParam {Number[]} [labels] The label ids that will be binding the article
         @apiSuccess (201) {Number} id The created article id.
-        @apiError (400) {Number} code The error code.
+        @apiError (400) {String} err The error message.
         """
         title = self.body.get('title')
         content = self.body.get('content')
+        public = self.body.get('public')
         article = Article()
         await article.connect()
-        one = await article.insert_article(title, content)
+        one = await article.insert_article(title, content, public)
         del article
         if one is None:
             self.set_status(400)
@@ -73,11 +75,12 @@ class ArticleHandler(DefaultHandler, ABC):
                     "title": "Hello",
                     "content": "I am Edgar, welcome to my world.",
                     "views": 2333,
+                    "public": 1,
                     "created_at": 1546414975,
                     "updated_at": 1546414975,
                 ]
              }
-        @apiError (404) {Number} code The error code.
+        @apiError (404) {String} err The error message.
         """
 
         start = int(self.get_argument('start', -1))
@@ -87,7 +90,7 @@ class ArticleHandler(DefaultHandler, ABC):
         article = Article()
         await article.connect()
         if article_id:
-            one = await article.select(int(article_id), 'id', 'title', 'content', 'views', 'created_at', 'updated_at')
+            one = await article.select(int(article_id), 'id', 'title', 'content', 'views', 'public', 'created_at', 'updated_at')
             many = [one] if one else []
         else:
             many = await article.select_articles(start, limit, label_id)
@@ -103,8 +106,9 @@ class ArticleHandler(DefaultHandler, ABC):
                 'title': m[1],
                 'content': m[2],
                 'views': m[3],
-                'created_at': time.mktime(m[4].timetuple()),
-                'updated_at': time.mktime(m[5].timetuple())
+                'public': m[4],
+                'created_at': time.mktime(m[5].timetuple()),
+                'updated_at': time.mktime(m[6].timetuple())
             })
         self.finish({'items': articles})
 
@@ -124,8 +128,9 @@ class ArticleHandler(DefaultHandler, ABC):
         }
         @apiParam {string} [title] The new title of the article
         @apiParam {string} [content] The new content of the article
-        @apiSuccess (200) {Number} code The successful code.
-        @apiError (404) {Number} code The error code.
+        @apiParam {Number} [public] whether the article is public
+        @apiSuccess (204) status
+        @apiError (404) {String} err The error message.
         """
         await self.put_one(Article(), *args, **kwargs)
 
@@ -142,8 +147,8 @@ class ArticleHandler(DefaultHandler, ABC):
         {
             "token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpZCI6IkVkZ2FyIiwiaWF0IjoxNTQ2MzYxMDQ1LCJleHAiOjE1NDY5NjU4NDV9.zqwf8aemhrH17CZaEt2SKPojpd68OqIcPJfTClAkuC0"
         }
-        @apiSuccess (200) {Number} code The successful code.
-        @apiError (404) {Number} code The error code.
+        @apiSuccess (204) status
+        @apiError (404) {String} err The error message.
         """
         await self.delete_one(Article(), *args, **kwargs)
 
@@ -163,8 +168,8 @@ class ArticleLabelHandler(DefaultHandler, ABC):
         {
             "token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpZCI6IkVkZ2FyIiwiaWF0IjoxNTQ2MzYxMDQ1LCJleHAiOjE1NDY5NjU4NDV9.zqwf8aemhrH17CZaEt2SKPojpd68OqIcPJfTClAkuC0"
         }
-        @apiSuccess (200) {Number} id The created article id.
-        @apiError (400) {Number} code The error code.
+        @apiSuccess (204) status
+        @apiError (400) {String} err The error message.
         """
         await self.handle(True, *args)
 
@@ -181,8 +186,8 @@ class ArticleLabelHandler(DefaultHandler, ABC):
         {
             "token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpZCI6IkVkZ2FyIiwiaWF0IjoxNTQ2MzYxMDQ1LCJleHAiOjE1NDY5NjU4NDV9.zqwf8aemhrH17CZaEt2SKPojpd68OqIcPJfTClAkuC0"
         }
-        @apiSuccess (200) {Number} id The created article id.
-        @apiError (400) {Number} code The error code.
+        @apiSuccess (204) status
+        @apiError (400) {String} err The error message.
         """
         await self.handle(False, *args)
 
@@ -195,3 +200,4 @@ class ArticleLabelHandler(DefaultHandler, ABC):
         if count <= 0:
             self.set_status(400)
             return
+        self.set_status(204)

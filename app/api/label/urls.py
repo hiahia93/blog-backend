@@ -1,4 +1,4 @@
-from apps.label.handler import LabelHandler
+from app.api.label.handler import LabelHandler
 
 url = [
     ('/api/label', LabelHandler),

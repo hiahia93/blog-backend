@@ -2,10 +2,11 @@ from tornado.web import Application
 from tornado import ioloop
 from tornado.options import define, options, parse_command_line
 
-from apps.urls import urls
+from app.urls import urls
 
 define('port', default=8888, type=int)
 parse_command_line()
+
 
 app = Application(urls)
 

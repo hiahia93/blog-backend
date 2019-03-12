@@ -1,5 +1,5 @@
-from apps.database import BaseModel
-from apps import logger
+from app.database import BaseModel
+from app import logger
 
 
 class Label(BaseModel):
